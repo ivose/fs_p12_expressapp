@@ -1,0 +1,32 @@
+## Ex 12.4
+## for running "docker build -t express-app . && docker run -p 3000:3000 express-app"
+## docker-compose up --build ## rebuild image
+## docker-compose up ##new image
+version: '3.8'            # Version 3.8 is quite new and should work
+
+services:
+  mongo:
+    image: mongo
+    ports:
+     - 3456:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+    volumes:
+      - ./mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+      - ./mongo_data:/data/db
+
+  app:                    # The name of the service, can be anything
+    image: express-app   # Declares which image to use
+    restart: always
+    build: .              # Declares where to build if image is not found
+    ports:                # Declares the ports to publish
+      - 3000:3000
+    environment:
+      #MONGO_URL: mongodb://the_username:the_password@localhost:3456/the_database
+      #MONGO_URL: mongodb://root:example@mongo:27017/
+      MONGO_URL: ${MONGO_URL}
+
+volumes:
+  mongo_data:
